@@ -8,10 +8,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Drupal\Component\Utility\Xss;
 
 /**
- * Class JsonApiStemController
+ * Class JsonApiComponentController
  * @package Drupal\sir\Controller
  */
-class JsonApiStemController extends ControllerBase{
+class JsonApiComponentController extends ControllerBase{
 
   /**
    * @return JsonResponse
@@ -19,25 +19,26 @@ class JsonApiStemController extends ControllerBase{
   public function handleAutocomplete(Request $request) {
     $results = [];
     $input = $request->query->get('q');
+
+
     if (!$input) {
       return new JsonResponse($results);
     }
-    $keyword = Xss::filter($input);
-    //dpm($keyword);
+    $input = Xss::filter($input);
     $api = \Drupal::service('rep.api_connector');
-    $stem_list = $api->listByKeyword('componentstem','_',10,0);
-    $obj = json_decode($stem_list);
-    $stems = [];
+    $component_list = $api->listByKeyword('component',$input,10,0);
+    $obj = json_decode($component_list);
+    $components = [];
     if ($obj->isSuccessful) {
-      $stems = $obj->body;
+      $components = $obj->body;
     }
-    //dpm($stems);
-    foreach ($stems as $stem) {
+    foreach ($components as $component) {
       $results[] = [
-        'value' => $stem->hasContent . ' [' . $stem->uri . ']',
-        'label' => $stem->hasContent,
-      ];
+          'value' => $component->label . ' [' . $component->uri . ']',
+          'label' => $component->label,
+        ];
     }
+
     return new JsonResponse($results);
   }
 

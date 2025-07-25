@@ -12,57 +12,57 @@ use Drupal\rep\Entity\Tables;
 use Drupal\rep\Vocabulary\VSTOI;
 use Drupal\file\Entity\File;
 
-class AddDetectorForm extends FormBase {
+class AddComponentForm extends FormBase {
 
   /**
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'add_detector_form';
+    return 'add_component_form';
   }
 
-  protected $sourceDetectorUri;
+  protected $sourceComponentUri;
 
-  protected $sourceDetector;
+  protected $sourceComponent;
 
-  protected $detectorStem;
+  protected $componentStem;
 
   protected $containerslotUri;
 
   protected $containerslot;
 
-  protected $detectorUri;
+  protected $componentUri;
 
-  public function setDetectorUri() {
-    $this->detectorUri = Utils::uriGen('detector');
+  public function setComponentUri() {
+    $this->componentUri = Utils::uriGen('component');
   }
 
-  public function getDetectorUri() {
-    return $this->detectorUri;
+  public function getComponentUri() {
+    return $this->componentUri;
   }
 
-  public function getSourceDetectorUri() {
-    return $this->sourceDetectorUri;
+  public function getSourceComponentUri() {
+    return $this->sourceComponentUri;
   }
 
-  public function setSourceDetectorUri($uri) {
-    return $this->sourceDetectorUri = $uri;
+  public function setSourceComponentUri($uri) {
+    return $this->sourceComponentUri = $uri;
   }
 
-  public function getSourceDetector() {
-    return $this->sourceDetector;
+  public function getSourceComponent() {
+    return $this->sourceComponent;
   }
 
-  public function setSourceDetector($obj) {
-    return $this->sourceDetector = $obj;
+  public function setSourceComponent($obj) {
+    return $this->sourceComponent = $obj;
   }
 
-  public function getDetectorStem() {
-    return $this->detectorStem;
+  public function getComponentStem() {
+    return $this->componentStem;
   }
 
-  public function setDetectorStem($stem) {
-    return $this->detectorStem = $stem;
+  public function setComponentStem($stem) {
+    return $this->componentStem = $stem;
   }
 
   public function getContainerSlotUri() {
@@ -84,20 +84,20 @@ class AddDetectorForm extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state, $sourcedetectoruri = NULL, $containersloturi = NULL) {
+  public function buildForm(array $form, FormStateInterface $form_state, $sourcecomponenturi = NULL, $containersloturi = NULL) {
 
     // Does the repo have a social network?
     $socialEnabled = \Drupal::config('rep.settings')->get('social_conf');
 
-    // Check if the detector URI already exists in the form state.
+    // Check if the component URI already exists in the form state.
     // If not, generate a new URI and store it in the form state.
-    if (!$form_state->has('detector_uri')) {
-      $this->setDetectorUri();
-      $form_state->set('detector_uri', $this->getDetectorUri());
+    if (!$form_state->has('component_uri')) {
+      $this->setComponentUri();
+      $form_state->set('component_uri', $this->getComponentUri());
     }
     else {
       // Retrieve the persisted URI from form state.
-      $this->detectorUri = $form_state->get('detector_uri');
+      $this->componentUri = $form_state->get('component_uri');
     }
 
     // MODAL
@@ -107,26 +107,26 @@ class AddDetectorForm extends FormBase {
     // ESTABLISH API SERVICE
     $api = \Drupal::service('rep.api_connector');
 
-    // HANDLE SOURCE DETECTOR,  IF ANY
-    $sourceuri=$sourcedetectoruri;
+    // HANDLE SOURCE COMPONENT,  IF ANY
+    $sourceuri=$sourcecomponenturi;
     if ($sourceuri === NULL || $sourceuri === 'EMPTY') {
-      $this->setSourceDetector(NULL);
-      $this->setSourceDetectorUri('');
+      $this->setSourceComponent(NULL);
+      $this->setSourceComponentUri('');
     } else {
       $sourceuri_decode=base64_decode($sourceuri);
-      $this->setSourceDetectorUri($sourceuri_decode);
-      $rawresponse = $api->getUri($this->getSourceDetectorUri());
+      $this->setSourceComponentUri($sourceuri_decode);
+      $rawresponse = $api->getUri($this->getSourceComponentUri());
       //dpm($rawresponse);
       $obj = json_decode($rawresponse);
       if ($obj->isSuccessful) {
-        $this->setSourceDetector($obj->body);
-        //dpm($this->getDetector());
+        $this->setSourceComponent($obj->body);
+        //dpm($this->getComponent());
       } else {
-        $this->setSourceDetector(NULL);
-        $this->setSourceDetectorUri('');
+        $this->setSourceComponent(NULL);
+        $this->setSourceComponentUri('');
       }
     }
-    $disabledDerivationOption = ($this->getSourceDetector() === NULL);
+    $disabledDerivationOption = ($this->getSourceComponent() === NULL);
 
     // HANDLE CONTAINER_SLOT, IF ANY
     $attachuri=$containersloturi;
@@ -150,40 +150,40 @@ class AddDetectorForm extends FormBase {
     $derivations = $tables->getGenerationActivities();
 
     $sourceContent = '';
-    if ($this->getSourceDetector() != NULL) {
-      $sourceContent = $this->getSourceDetector()->hasContent;
+    if ($this->getSourceComponent() != NULL) {
+      $sourceContent = $this->getSourceComponent()->hasContent;
     }
 
-    // $form['detector_stem'] = [
+    // $form['component_stem'] = [
     //   '#type' => 'textfield',
     //   '#title' => \Drupal::moduleHandler()->moduleExists('pmsr') ?
     //     $this->t('Simulation Technique Stem') :
-    //     $this->t('Detector Stem'),
-    //   '#autocomplete_route_name' => 'sir.detector_stem_autocomplete',
+    //     $this->t('Component Stem'),
+    //   '#autocomplete_route_name' => 'sir.component_stem_autocomplete',
     // ];
 
-    $form['detector_stem'] = [
+    $form['component_stem'] = [
       'top' => [
         '#type' => 'markup',
         '#markup' => '<div class="pt-3 col border border-white">',
       ],
       'main' => [
         '#type' => 'textfield',
-        '#title' => $this->t('Detector Stem'),
-        '#name' => 'detector_stem',
+        '#title' => $this->t('Component Stem'),
+        '#name' => 'component_stem',
         '#default_value' => '',
-        '#id' => 'detector_stem',
-        '#parents' => ['detector_stem'],
+        '#id' => 'component_stem',
+        '#parents' => ['component_stem'],
         '#attributes' => [
           'class' => ['open-tree-modal'],
           'data-dialog-type' => 'modal',
           'data-dialog-options' => json_encode(['width' => 800]),
           'data-url' => Url::fromRoute('rep.tree_form', [
             'mode' => 'modal',
-            'elementtype' => 'detectorstem',
-          ], ['query' => ['field_id' => 'detector_stem']])->toString(),
-          'data-field-id' => 'detector_stem',
-          'data-elementtype' => 'detectorstem',
+            'elementtype' => 'componentstem',
+          ], ['query' => ['field_id' => 'component_stem']])->toString(),
+          'data-field-id' => 'component_stem',
+          'data-elementtype' => 'componentstem',
           'autocomplete' => 'off',
         ],
       ],
@@ -193,17 +193,17 @@ class AddDetectorForm extends FormBase {
       ],
     ];
 
-    $form['detector_stem']['main'] += [
+    $form['component_stem']['main'] += [
       '#maxlength' => 999,
     ];
 
-    $form['detector_codebook'] = [
+    $form['component_codebook'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Codebook'),
-      '#autocomplete_route_name' => 'sir.detector_codebook_autocomplete',
+      '#autocomplete_route_name' => 'sir.component_codebook_autocomplete',
     ];
     if ($socialEnabled) {
-      $form['detector_maker'] = [
+      $form['component_maker'] = [
         '#type' => 'textfield',
         '#title' => $this->t('Maker'),
         // '#required' => TRUE,
@@ -213,17 +213,17 @@ class AddDetectorForm extends FormBase {
         ],
       ];
     }
-    $form['detector_version_hidden'] = [
+    $form['component_version_hidden'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Version'),
       '#default_value' => '1',
       '#disabled' => TRUE,
     ];
-    $form['detector_version'] = [
+    $form['component_version'] = [
       '#type' => 'hidden',
       '#value' => '1',
     ];
-    $form['detector_isAttributeOf'] = [
+    $form['component_isAttributeOf'] = [
       'top' => [
         '#type' => 'markup',
         '#markup' => '<div class="col border border-white">',
@@ -231,20 +231,20 @@ class AddDetectorForm extends FormBase {
       'main' => [
         '#type' => 'textfield',
         '#title' => $this->t('Attribute Of <small><i>(optional)</i></small>'),
-        '#name' => 'detector_isAttributeOf',
+        '#name' => 'component_isAttributeOf',
         '#default_value' => '',
-        '#id' => 'detector_isAttributeOf',
-        '#parents' => ['detector_isAttributeOf'],
+        '#id' => 'component_isAttributeOf',
+        '#parents' => ['component_isAttributeOf'],
         '#attributes' => [
           'class' => ['open-tree-modal'],
           'data-dialog-type' => 'modal',
           'data-dialog-options' => json_encode(['width' => 800]),
           'data-url' => Url::fromRoute('rep.tree_form', [
             'mode' => 'modal',
-            'elementtype' => 'detectorattribute',
-          ], ['query' => ['field_id' => 'detector_isAttributeOf']])->toString(),
-          'data-field-id' => 'detector_isAttributeOf',
-          'data-elementtype' => 'detectorattribute',
+            'elementtype' => 'componentattribute',
+          ], ['query' => ['field_id' => 'component_isAttributeOf']])->toString(),
+          'data-field-id' => 'component_isAttributeOf',
+          'data-elementtype' => 'componentattribute',
           'autocomplete' => 'off',
         ],
       ],
@@ -254,14 +254,14 @@ class AddDetectorForm extends FormBase {
       ],
     ];
 
-    // Add a hidden field to persist the detector URI between form rebuilds.
-    $form['detector_uri'] = [
+    // Add a hidden field to persist the component URI between form rebuilds.
+    $form['component_uri'] = [
       '#type' => 'hidden',
-      '#value' => $this->detectorUri,
+      '#value' => $this->componentUri,
     ];
 
     // Add a select box to choose between URL and Upload.
-    $form['detector_image_type'] = [
+    $form['component_image_type'] = [
       '#type' => 'select',
       '#title' => $this->t('Image Type'),
       '#options' => [
@@ -274,7 +274,7 @@ class AddDetectorForm extends FormBase {
 
     // The textfield for entering a URL.
     // It is only visible when the select box value is 'url'.
-    $form['detector_image_url'] = [
+    $form['component_image_url'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Image'),
       '#attributes' => [
@@ -282,22 +282,22 @@ class AddDetectorForm extends FormBase {
       ],
       '#states' => [
         'visible' => [
-          ':input[name="detector_image_type"]' => ['value' => 'url'],
+          ':input[name="component_image_type"]' => ['value' => 'url'],
         ],
       ],
     ];
 
-    // Because File Upload Path (use the persisted detector URI for file uploads)
-    $modUri = (explode(":/", utils::namespaceUri($this->detectorUri)))[1];
-    $form['detector_image_upload_wrapper'] = [
+    // Because File Upload Path (use the persisted component URI for file uploads)
+    $modUri = (explode(":/", utils::namespaceUri($this->componentUri)))[1];
+    $form['component_image_upload_wrapper'] = [
       '#type' => 'container',
       '#states' => [
         'visible' => [
-          ':input[name="detector_image_type"]' => ['value' => 'upload'],
+          ':input[name="component_image_type"]' => ['value' => 'upload'],
         ],
       ],
     ];
-    $form['detector_image_upload_wrapper']['detector_image_upload'] = [
+    $form['component_image_upload_wrapper']['component_image_upload'] = [
       '#type' => 'managed_file',
       '#title' => $this->t('Upload Image'),
       '#upload_location' => 'private://resources/' . $modUri . '/image',
@@ -308,7 +308,7 @@ class AddDetectorForm extends FormBase {
     ];
 
     // Add a select box to choose between URL and Upload.
-    $form['detector_webdocument_type'] = [
+    $form['component_webdocument_type'] = [
       '#type' => 'select',
       '#title' => $this->t('Web Document Type'),
       '#options' => [
@@ -321,7 +321,7 @@ class AddDetectorForm extends FormBase {
 
     // The textfield for entering a URL.
     // It is only visible when the select box value is 'url'.
-    $form['detector_webdocument_url'] = [
+    $form['component_webdocument_url'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Web Document'),
       '#attributes' => [
@@ -329,21 +329,21 @@ class AddDetectorForm extends FormBase {
       ],
       '#states' => [
         'visible' => [
-          ':input[name="detector_webdocument_type"]' => ['value' => 'url'],
+          ':input[name="component_webdocument_type"]' => ['value' => 'url'],
         ],
       ],
     ];
 
-    // Because File Upload Path (use the persisted detector URI for file uploads)
-    $form['detector_webdocument_upload_wrapper'] = [
+    // Because File Upload Path (use the persisted component URI for file uploads)
+    $form['component_webdocument_upload_wrapper'] = [
       '#type' => 'container',
       '#states' => [
         'visible' => [
-          ':input[name="detector_webdocument_type"]' => ['value' => 'upload'],
+          ':input[name="component_webdocument_type"]' => ['value' => 'upload'],
         ],
       ],
     ];
-    $form['detector_webdocument_upload_wrapper']['detector_webdocument_upload'] = [
+    $form['component_webdocument_upload_wrapper']['component_webdocument_upload'] = [
       '#type' => 'managed_file',
       '#title' => $this->t('Upload Document'),
       '#upload_location' => 'private://resources/' . $modUri . '/webdoc',
@@ -387,17 +387,17 @@ class AddDetectorForm extends FormBase {
 
     if ($button_name != 'back') {
 
-      if ($form_state->getValue('detector_stem') == NULL || $form_state->getValue('detector_stem') == '') {
-        $form_state->setErrorByName('detector_stem', $this->t('Detector stem value is empty. Please enter a valid stem.'));
+      if ($form_state->getValue('component_stem') == NULL || $form_state->getValue('component_stem') == '') {
+        $form_state->setErrorByName('component_stem', $this->t('Component stem value is empty. Please enter a valid stem.'));
       }
 
-      // if (strlen($form_state->getValue('detector_stem')) > 128) {
-      //   $form_state->setValue('detector_stem', Utils::trimPreserveBracket($form_state->getValue('detector_stem'), 127));
+      // if (strlen($form_state->getValue('component_stem')) > 128) {
+      //   $form_state->setValue('component_stem', Utils::trimPreserveBracket($form_state->getValue('component_stem'), 127));
       // }
-      // $stemUri = Utils::uriFromAutocomplete($form_state->getValue('detector_stem'));
-      // $this->setDetectorStem($api->parseObjectResponse($api->getUri($stemUri),'getUri'));
-      // if($this->getDetectorStem() == NULL) {
-      //   $form_state->setErrorByName('detector_stem', $this->t('Value for Detector Stem is not valid. Please enter a valid stem.'));
+      // $stemUri = Utils::uriFromAutocomplete($form_state->getValue('component_stem'));
+      // $this->setComponentStem($api->parseObjectResponse($api->getUri($stemUri),'getUri'));
+      // if($this->getComponentStem() == NULL) {
+      //   $form_state->setErrorByName('component_stem', $this->t('Value for Component Stem is not valid. Please enter a valid stem.'));
       // }
     }
   }
@@ -421,16 +421,16 @@ class AddDetectorForm extends FormBase {
     try {
 
       $hasCodebook = '';
-      if ($form_state->getValue('detector_codebook') !== NULL && $form_state->getValue('detector_codebook') !== '') {
-        $hasCodebook = Utils::uriFromAutocomplete($form_state->getValue('detector_codebook'));
+      if ($form_state->getValue('component_codebook') !== NULL && $form_state->getValue('component_codebook') !== '') {
+        $hasCodebook = Utils::uriFromAutocomplete($form_state->getValue('component_codebook'));
       } else {
         $hasCodebook = NULL;
       }
 
       $useremail = \Drupal::currentUser()->getEmail();
 
-      // GET THE DETECTOR STEM URI
-      $rawresponse = $api->getUri(Utils::uriFromAutocomplete($form_state->getValue('detector_stem')));
+      // GET THE COMPONENT STEM URI
+      $rawresponse = $api->getUri(Utils::uriFromAutocomplete($form_state->getValue('component_stem')));
       $obj = json_decode($rawresponse);
       $result = $obj->body;
 
@@ -441,8 +441,8 @@ class AddDetectorForm extends FormBase {
         $label .= $result->label;
       }
 
-      if ($form_state->getValue('detector_codebook') !== NULL && $form_state->getValue('detector_codebook') != '') {
-        $codebook = Utils::uriFromAutocomplete($form_state->getValue('detector_codebook'));
+      if ($form_state->getValue('component_codebook') !== NULL && $form_state->getValue('component_codebook') != '') {
+        $codebook = Utils::uriFromAutocomplete($form_state->getValue('component_codebook'));
         $rawresponseCB = $api->getUri($codebook);
         $objCB = json_decode($rawresponseCB);
         $resultCB = $objCB->body;
@@ -451,23 +451,23 @@ class AddDetectorForm extends FormBase {
         $label = $result->label . '  -- CB:EMPTY';
       }
 
-      // Get the current user email and generate a new detector URI.
+      // Get the current user email and generate a new component URI.
       $useremail = \Drupal::currentUser()->getEmail();
-      // $newInstrumentUri = Utils::uriGen('detector');
-      $newDetectorUri = $form_state->getValue('detector_uri');
+      // $newInstrumentUri = Utils::uriGen('component');
+      $newComponentUri = $form_state->getValue('component_uri');
 
       // Determine the chosen document type.
-      $doc_type = $form_state->getValue('detector_webdocument_type');
-      $detector_webdocument = '';
+      $doc_type = $form_state->getValue('component_webdocument_type');
+      $component_webdocument = '';
 
       // If user selected URL, use the textfield value.
       if ($doc_type === 'url') {
-        $detector_webdocument = $form_state->getValue('detector_webdocument_url');
+        $component_webdocument = $form_state->getValue('component_webdocument_url');
       }
       // If user selected Upload, load the file entity and get its filename.
       elseif ($doc_type === 'upload') {
         // Get the file IDs from the managed_file element.
-        $fids = $form_state->getValue('detector_webdocument_upload');
+        $fids = $form_state->getValue('component_webdocument_upload');
         if (!empty($fids)) {
           // Load the first file (file ID is returned, e.g. "374").
           $file = File::load(reset($fids));
@@ -476,25 +476,25 @@ class AddDetectorForm extends FormBase {
             $file->setPermanent();
             $file->save();
             // Optionally register file usage to prevent cleanup.
-            \Drupal::service('file.usage')->add($file, 'sir', 'detector', 1);
+            \Drupal::service('file.usage')->add($file, 'sir', 'component', 1);
             // Now get the filename from the file entity.
-            $detector_webdocument = $file->getFilename();
+            $component_webdocument = $file->getFilename();
           }
         }
       }
 
       // Determine the chosen image type.
-      $image_type = $form_state->getValue('detector_image_type');
-      $detector_image = '';
+      $image_type = $form_state->getValue('component_image_type');
+      $component_image = '';
 
       // If user selected URL, use the textfield value.
       if ($image_type === 'url') {
-        $detector_image = $form_state->getValue('detector_image_url');
+        $component_image = $form_state->getValue('component_image_url');
       }
       // If user selected Upload, load the file entity and get its filename.
       elseif ($image_type === 'upload') {
         // Get the file IDs from the managed_file element.
-        $fids = $form_state->getValue('detector_image_upload');
+        $fids = $form_state->getValue('component_image_upload');
         if (!empty($fids)) {
           // Load the first file (file ID is returned, e.g. "374").
           $file = File::load(reset($fids));
@@ -503,35 +503,35 @@ class AddDetectorForm extends FormBase {
             $file->setPermanent();
             $file->save();
             // Optionally register file usage to prevent cleanup.
-            \Drupal::service('file.usage')->add($file, 'sir', 'detector', 1);
+            \Drupal::service('file.usage')->add($file, 'sir', 'component', 1);
             // Now get the filename from the file entity.
-            $detector_image = $file->getFilename();
+            $component_image = $file->getFilename();
           }
         }
       }
 
-      // CREATE A NEW DETECTOR
-      $detectorJson = '{"uri":"'.$newDetectorUri.'",'.
-        '"typeUri":"'.Utils::uriFromAutocomplete($form_state->getValue('detector_stem')).'",'.
-        '"hascoTypeUri":"'.VSTOI::DETECTOR.'",'.
-        '"hasDetectorStem":"'.Utils::uriFromAutocomplete($form_state->getValue('detector_stem')).'",'.
+      // CREATE A NEW COMPONENT
+      $componentJson = '{"uri":"'.$newComponentUri.'",'.
+        '"typeUri":"'.Utils::uriFromAutocomplete($form_state->getValue('component_stem')).'",'.
+        '"hascoTypeUri":"'.VSTOI::COMPONENT.'",'.
+        '"hasComponentStem":"'.Utils::uriFromAutocomplete($form_state->getValue('component_stem')).'",'.
         '"hasCodebook":"'.$hasCodebook.'",'.
         '"hasContent":"'.$label.'",'.
         '"hasSIRManagerEmail":"'.$useremail.'",'.
         '"label":"'.$label.'",'.
         '"hasVersion":"1",'.
-        '"isAttributeOf":"'.Utils::uriFromAutocomplete($form_state->getValue('detector_isAttributeOf')).'",'.
-        '"hasMakerUri":"' . Utils::uriFromAutocomplete($form_state->getValue('detector_maker')) . '",' .
-        '"hasWebDocument":"' . $detector_webdocument . '",' .
-        '"hasImageUri":"' . $detector_image . '",' .
+        '"isAttributeOf":"'.Utils::uriFromAutocomplete($form_state->getValue('component_isAttributeOf')).'",'.
+        '"hasMakerUri":"' . Utils::uriFromAutocomplete($form_state->getValue('component_maker')) . '",' .
+        '"hasWebDocument":"' . $component_webdocument . '",' .
+        '"hasImageUri":"' . $component_image . '",' .
         '"hasStatus":"'.VSTOI::DRAFT.'"}';
 
-      $api->detectorAdd($detectorJson);
+      $api->componentAdd($componentJson);
 
-      // IF IN THE CONTEXT OF AN EXISTING CONTAINER_SLOT, ATTACH THE NEWLY CREATED DETECTOR TO THE CONTAINER_SLOT
+      // IF IN THE CONTEXT OF AN EXISTING CONTAINER_SLOT, ATTACH THE NEWLY CREATED COMPONENT TO THE CONTAINER_SLOT
       if ($this->getContainerSlot() != NULL) {
-        $api->detectorAttach($newDetectorUri,$this->getContainerSlotUri());
-        \Drupal::messenger()->addMessage(t("Detector [" . $newDetectorUri ."] has been added and attached to intrument [" . $this->getContainerSlot()->belongsTo . "] successfully."));
+        $api->componentAttach($newComponentUri,$this->getContainerSlotUri());
+        \Drupal::messenger()->addMessage(t("Component [" . $newComponentUri ."] has been added and attached to intrument [" . $this->getContainerSlot()->belongsTo . "] successfully."));
         $url = Url::fromRoute('sir.edit_containerslot');
         $url->setRouteParameter('containersloturi', base64_encode($this->getContainerSlotUri()));
         $form_state->setRedirectUrl($url);
@@ -539,33 +539,33 @@ class AddDetectorForm extends FormBase {
       } else {
         // UPLOAD IMAGE TO API
         if ($image_type === 'upload') {
-          $fids = $form_state->getValue('detector_image_upload');
-          $msg = $api->parseObjectResponse($api->uploadFile($newDetectorUri, reset($fids)), 'uploadFile');
+          $fids = $form_state->getValue('component_image_upload');
+          $msg = $api->parseObjectResponse($api->uploadFile($newComponentUri, reset($fids)), 'uploadFile');
           if ($msg == NULL) {
             \Drupal::messenger()->addError(t("The Uploaded Image FAILED to be submited to API."));
           }
         }
         // UPLOAD DOCUMENT TO API
         if ($doc_type === 'upload') {
-          $fids = $form_state->getValue('detector_webdocument_upload');
-          $msg = $api->parseObjectResponse($api->uploadFile($newDetectorUri, reset($fids)), 'uploadFile');
+          $fids = $form_state->getValue('component_webdocument_upload');
+          $msg = $api->parseObjectResponse($api->uploadFile($newComponentUri, reset($fids)), 'uploadFile');
           if ($msg == NULL) {
             \Drupal::messenger()->addError(t("The Uploaded Document FAILED to be submited to API."));
           }
         }
 
-        \Drupal::messenger()->addMessage(t("Detector has been added successfully."));
+        \Drupal::messenger()->addMessage(t("Component has been added successfully."));
         self::backUrl();
         return;
       }
     } catch(\Exception $e) {
       if ($this->getContainerSlot() != NULL) {
-        \Drupal::messenger()->addError(t("An error occurred while adding the Detector: ".$e->getMessage()));
+        \Drupal::messenger()->addError(t("An error occurred while adding the Component: ".$e->getMessage()));
         $url = Url::fromRoute('sir.edit_containerslot');
         $url->setRouteParameter('containersloturi', base64_encode($this->getContainerSlotUri()));
         $form_state->setRedirectUrl($url);
       } else {
-        \Drupal::messenger()->addError(t("An error occurred while adding the Detector: ".$e->getMessage()));
+        \Drupal::messenger()->addError(t("An error occurred while adding the Component: ".$e->getMessage()));
         self::backUrl();
         return;
       }
@@ -574,7 +574,7 @@ class AddDetectorForm extends FormBase {
 
   function backUrl() {
     $uid = \Drupal::currentUser()->id();
-    $previousUrl = Utils::trackingGetPreviousUrl($uid, 'sir.add_detector');
+    $previousUrl = Utils::trackingGetPreviousUrl($uid, 'sir.add_component');
     if ($previousUrl) {
       $response = new RedirectResponse($previousUrl);
       $response->send();

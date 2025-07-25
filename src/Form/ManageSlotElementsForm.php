@@ -189,8 +189,6 @@ class ManageSlotElementsForm extends FormBase {
               if ($slotElement->hasComponent != null) {
 
                 $component = $api->parseObjectResponse($api->getUri($slotElement->hasComponent),'getUri');
-                // $type = Utils::namespaceUri(VSTOI::DETECTOR);
-                // Ter em atenção que o componente agora vai ser um atributo que vai conter dentro qual é o tipo do atributo (detector/actuator)
                 if ($component != NULL) {
                   $type = Utils::namespaceUri($component->hascoTypeUri);
                   if (isset($component->uri)) {

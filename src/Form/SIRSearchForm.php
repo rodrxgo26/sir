@@ -141,8 +141,7 @@ class SIRSearchForm extends FormBase {
     }
 
     $preferred_instrument = \Drupal::config('rep.settings')->get('preferred_instrument');
-    $preferred_detector = \Drupal::config('rep.settings')->get('preferred_detector');
-    $preferred_actuator = \Drupal::config('rep.settings')->get('preferred_actuator') ?? 'Actuator';
+    $preferred_component = \Drupal::config('rep.settings')->get('preferred_component');
 
     $form['search_element_type'] = [
       '#type' => 'select',
@@ -150,10 +149,8 @@ class SIRSearchForm extends FormBase {
       '#required' => TRUE,
       '#options' => [
         'instrument' => $this->t($preferred_instrument . 's'),
-        'actuatorstem' => $this->t($preferred_actuator . ' Stems'),
-        'actuator' => $this->t($preferred_actuator . 's'),
-        'detectorstem' => $this->t($preferred_detector . ' Stems'),
-        'detector' => $this->t($preferred_detector . 's'),
+        'component' => $this->t($preferred_component . 's'),
+        'componentstem' => $this->t($preferred_component . ' Stems'),
         'codebook' => $this->t('Codebooks'),
         'responseoption' => $this->t('Response Options'),
         'annotationstem' => $this->t('Annotation Stems'),
@@ -258,8 +255,7 @@ class SIRSearchForm extends FormBase {
 
     // IF ELEMENT TYPE IS CLASS
     if (($form_state->getValue('search_element_type') == 'instrument') ||
-        ($form_state->getValue('search_element_type') == 'actuatorstem') ||
-        ($form_state->getValue('search_element_type') == 'detectorstem')) {
+        ($form_state->getValue('search_element_type') == 'componentstem')) {
       $url = Url::fromRoute('rep.browse_tree');
       $url->setRouteParameter('mode', 'browse');
       $url->setRouteParameter('elementtype', $form_state->getValue('search_element_type'));
@@ -286,7 +282,7 @@ class SIRSearchForm extends FormBase {
     $elementType = $form_state->getValue('search_element_type');
 
     // Build URL for the route 'sir.search' with parameters.
-    if ($elementType === 'instrument' || $elementType === 'detectorstem' || $elementType === 'actuatorstem'){
+    if ($elementType === 'instrument' || $elementType === 'componentstem'){
       $url = Url::fromRoute('sir.search', [
         'mode' => 'browse',
         'elementtype' => $elementType,
